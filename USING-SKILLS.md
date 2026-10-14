@@ -12,7 +12,7 @@ This repository currently contains:
 | --- | --- |
 | `qa-test-case-generator` | Turning a feature description into assumptions, product clarification questions, and comprehensive Playwright-BDD-compatible Gherkin test scenarios. |
 
-As more skills are added, list them here with a short summary of when to use each.
+As more skills are added, list them here with a short summary of when to use each file.
 
 ## Invoke a skill
 
