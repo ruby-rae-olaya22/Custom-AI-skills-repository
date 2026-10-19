@@ -11,8 +11,10 @@ This repository currently contains:
 | Skill | Use it for |
 | --- | --- |
 | `qa-test-case-generator` | Turning a feature description into assumptions, product clarification questions, and comprehensive Playwright-BDD-compatible Gherkin test scenarios. |
+| `playwright-page-object-generator` | Generating Playwright-TypeScript page object classes with resilient locators and registering the page in `PageObjectManager`. |
+| `playwright-bdd-step-generator` | Turning a Gherkin `.feature` file + an existing page object file into Playwright-BDD step definitions (`src/steps/*.steps.ts`) that drive the page object. |
 
-As more skills are added, list them here with a short summary of when to use each file.
+As more skills are added, list them here with a short summary of when to use each.
 
 ## Invoke a skill
 
@@ -55,7 +57,7 @@ Playwright-BDD-compatible Gherkin scenarios with measurable expected outcomes.
 
 If you invoke the skill from the picker, you can omit the slash-command line and provide the rest of the prompt.
 
-### Example: automatic skill discovery
+### Example: automatic skill discovery for generating test scenarios in a gherkin format
 
 ```text
 Create Gherkin test cases for the checkout feature. Include assumptions,
@@ -63,6 +65,63 @@ open product questions, happy paths, validation and network failures, and
 security-relevant scenarios. The feature lets a customer apply a discount
 code before placing an order.
 ```
+
+
+For `playwright-page-object-generator`, provide at least:
+
+- **Page Name**
+- **File Name**
+- **Elements**
+
+Useful additional context includes base URL/navigation flow, label/placeholder/role text, required vs optional fields, native HTML5 vs custom error handling, existing `PageObjectManager` content, and locator constraints (getByRole priority, no XPath).
+
+### Example: Page object generation
+
+```text
+/playwright-page-object-generator
+
+Task: Create page object for Search Loan Application page
+Context: Playwright-TypeScript, files in src/pages/, register in PageObjectManager
+Elements:
+- username input #username "Enter your username here.."
+- password input "Enter your password here.."
+- Sign In button
+- "No data found." exact-text label
+Output: src/pages/search_loan_application_page.ts + updated pageObjectManager.ts + usage snippet
+```
+
+### Example: automatic skill discovery for generating page object
+
+```text
+Generate locators for the login page and wire it into PageObjectManager. Username textbox, password textbox, Sign In button, No data found label. Follow getByRole priority, no XPath.
+```
+
+For `playwright-bdd-step-generator`, provide at least:
+
+- **Feature File** (full `.feature` text or path under `src/features/`)
+- **Page Object File** (full `src/pages/*.ts` text or path)
+- **PageObjectManager Getter** (e.g. `pages.searchLoanApplicationPage`) if known
+
+### Example: Convert the feature and page object into steps:
+
+```text
+/playwright-bdd-step-generator
+
+Feature File: src/features/search_loan_application.feature
+Page Object File: src/pages/search_loan_application_page.ts
+PageObjectManager Getter: pages.searchLoanApplicationPage
+
+Return the coverage map followed by src/steps/search_loan_application.steps.ts
+using createBdd(test), pages.<getter> calls only, and expect() in steps.
+Flag any Gherkin step with no matching page method under Missing Coverage.
+```
+
+### Example: automatic skill discovery for generating steps from the feature + page object files
+
+```text
+Generate step definitions for the search loan application feature file in src/features/search_loan_application.feature using the existing page object in src/pages/search_loan_application_page.ts. Write src/steps/search_loan_application.steps.ts with Playwright-BDD Given/When/Then definitions that call pages.searchLoanApplicationPage methods only, assert with expect() in the steps, and flag any Gherkin step with no matching page method under Missing Coverage.
+```
+
 
 ## Prompting for other skills
 

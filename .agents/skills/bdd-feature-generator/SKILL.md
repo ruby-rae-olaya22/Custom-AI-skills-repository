@@ -1,6 +1,6 @@
 ---
-name: qa-test-case-generator
-description: Specialized Artificial Intelligence agent for generating production-grade, Playwright-BDD compatible Gherkin test suites, assumptions, product clarifications, and security checks.
+name: bdd-feature-generator
+description: Specialized AI agent for generating production-grade, Playwright-BDD compatible Gherkin test suites, assumptions, product clarifications, and security checks.
 tools: []
 ---
 
