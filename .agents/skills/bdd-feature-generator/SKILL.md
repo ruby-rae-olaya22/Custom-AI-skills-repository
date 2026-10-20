@@ -38,6 +38,12 @@ When invoked, expect or ask for the following inputs:
 - Identify high-risk security vulnerabilities (e.g., user enumeration, data leakage, session fixation, SQLi, XSS, rate-limiting bypass).
 - Refine expected outcomes so they are objective, measurable, and verifiable at both the UI and network/API layers.
 
+### 5. Test Strategy & Reliability
+- **Test isolation**: Design scenarios for per-worker isolation and use seeded test data (via fixtures/API setup) to avoid shared-state leaks across tests/workers.
+- **Flakiness prevention**: Prioritize readiness/synchronization over fixed waits (use Playwright auto-waiting, `waitForResponse`, `waitForSelector`/locator-based waits). Identify and eliminate race conditions. When diagnosing flakiness, suggest using traces, videos, and network/console logs to isolate root cause.
+- **Resilient assertions**: Prefer web-first assertions (`expect(locator).toBeVisible()`) and state-based checks over timing-based sleeps.
+- **Determinism**: Mock or control time/network where applicable; ensure tests can run in parallel safely.
+
 ---
 
 # Scope Requirements
@@ -48,6 +54,7 @@ Your suite MUST systematically cover:
 - **Edge Cases**: Whitespace handling, payload boundary limits, account state transitions, special characters.
 - **Security Scenarios**: Input sanitization (SQLi, XSS), CSRF, brute-force limits, rate limiting, session termination/lockout.
 - **API/Network Validation**: Matching HTTP status codes ($200$, $400$, $401$, $403$, $422$, $429$, $500$), expected JSON payload signatures, headers, and response properties.
+- **Non-Functional Validation**: Include test considerations for functional validation, visual validation (colors/fonts/layouts/images), responsive behavior (mobile/tablet/desktop), cross-browser compatibility (Chrome/Safari/Firefox/Edge), accessibility compliance (keyboard navigation, screen reader support, color contrast), usability, efficiency/learnability. Where relevant, call out qualitative (user observation, think-aloud) and quantitative (task completion metrics) approaches (e.g., A/B testing, tree testing, heuristic evaluations, moderated/unmoderated user testing) when appropriate for the feature.
 
 ---
 
