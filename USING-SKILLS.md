@@ -11,8 +11,8 @@ This repository currently contains:
 | Skill | Use it for |
 | --- | --- |
 | `bdd-feature-generator` | Turning a feature description into assumptions, product clarification questions, and comprehensive Playwright-BDD-compatible Gherkin test scenarios. |
-| `playwright-page-object-generator` | Generating Playwright-TypeScript page object classes with resilient locators and registering the page in `PageObjectManager`. |
-| `playwright-bdd-step-generator` | Turning a Gherkin `.feature` file + an existing page object file into Playwright-BDD step definitions (`src/steps/*.steps.ts`) that drive the page object. |
+| `pom-generator` | Generating Playwright-TypeScript page object classes with resilient locators and registering the page in `PageObjectManager`. |
+| `bdd-step-definition-generator` | Turning a Gherkin `.feature` file + an existing page object file into Playwright-BDD step definitions (`src/steps/*.steps.ts`) that drive the page object. |
 
 As more skills are added, list them here with a short summary of when to use each.
 
@@ -67,7 +67,7 @@ code before placing an order.
 ```
 
 
-For `playwright-page-object-generator`, provide at least:
+For `pom-generator`, provide at least:
 
 - **Page Name**
 - **File Name**
@@ -78,7 +78,7 @@ Useful additional context includes base URL/navigation flow, label/placeholder/r
 ### Example: Page object generation
 
 ```text
-/playwright-page-object-generator
+/pom-generator
 
 Task: Create page object for Search Loan Application page
 Context: Playwright-TypeScript, files in src/pages/, register in PageObjectManager
@@ -96,7 +96,7 @@ Output: src/pages/search_loan_application_page.ts + updated pageObjectManager.ts
 Generate locators for the login page and wire it into PageObjectManager. Username textbox, password textbox, Sign In button, No data found label. Follow getByRole priority, no XPath.
 ```
 
-For `playwright-bdd-step-generator`, provide at least:
+For `bdd-step-definition-generator`, provide at least:
 
 - **Feature File** (full `.feature` text or path under `src/features/`)
 - **Page Object File** (full `src/pages/*.ts` text or path)
@@ -105,7 +105,7 @@ For `playwright-bdd-step-generator`, provide at least:
 ### Example: Convert the feature and page object into steps:
 
 ```text
-/playwright-bdd-step-generator
+/bdd-step-definition-generator
 
 Feature File: src/features/search_loan_application.feature
 Page Object File: src/pages/search_loan_application_page.ts
