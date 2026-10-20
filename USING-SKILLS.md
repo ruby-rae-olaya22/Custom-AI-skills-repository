@@ -10,7 +10,7 @@ This repository currently contains:
 
 | Skill | Use it for |
 | --- | --- |
-| `qa-test-case-generator` | Turning a feature description into assumptions, product clarification questions, and comprehensive Playwright-BDD-compatible Gherkin test scenarios. |
+| `bdd-feature-generator` | Turning a feature description into assumptions, product clarification questions, and comprehensive Playwright-BDD-compatible Gherkin test scenarios. |
 | `playwright-page-object-generator` | Generating Playwright-TypeScript page object classes with resilient locators and registering the page in `PageObjectManager`. |
 | `playwright-bdd-step-generator` | Turning a Gherkin `.feature` file + an existing page object file into Playwright-BDD step definitions (`src/steps/*.steps.ts`) that drive the page object. |
 
@@ -20,7 +20,7 @@ As more skills are added, list them here with a short summary of when to use eac
 
 In a VS Code chat that supports agent skills, you can:
 
-1. **Select it directly:** type `/` and choose the skill by name if it appears in the picker. For example, choose `/qa-test-case-generator`.
+1. **Select it directly:** type `/` and choose the skill by name if it appears in the picker. For example, choose `/bdd-feature-generator`.
 2. **Ask for the task naturally:** describe the work and include the skill's key terms. The assistant may load a matching skill automatically when automatic skill invocation is enabled.
 3. **Be explicit when needed:** name the skill in your prompt if you want a particular workflow, or if more than one skill could apply.
 
@@ -30,7 +30,7 @@ Skill availability and slash-command behavior depend on the chat host and its co
 
 Include the information named by the skill. Be specific about the feature, expected behavior, constraints, and desired output. If required details are missing, ask the assistant to state assumptions and identify questions instead of silently inventing requirements.
 
-For `qa-test-case-generator`, provide at least:
+For `bdd-feature-generator`, provide at least:
 
 - **Feature name**
 - **Functional description**
@@ -40,7 +40,7 @@ Useful additional context includes target users, UI or API behavior, validation 
 ### Example: QA test generation
 
 ```text
-/qa-test-case-generator
+/bdd-feature-generator
 
 Feature name: Password reset
 Functional description: A signed-in user can request a password reset email
