@@ -35,9 +35,13 @@ If elements are missing, state assumptions and proceed with clearly marked place
 2. `page.getByLabel(text)` for form fields with `<label>`
 3. `page.getByPlaceholder(text)` only if no label exists
 4. `page.getByText(text, { exact: true })` for static labels/messages
-5. `page.getByTestId(id)` if app exposes `data-testid`
+5. `page.getByTestId(id)` (or `data-test-id="..."`) if app exposes data attributes
 6. CSS (`page.locator('#id', '.class')`) ONLY as last resort — never XPath unless no alternative exists and explicitly justified
 7. **Prefer shared selectors**: If a helper/util (e.g., `getTestId('...')`, selector constants, or `selectors.button('Submit')`) exists, use it. Document its usage.
+
+Constraints (must follow):
+- **Selector strategy**: Avoid fragile selectors (long XPaths, volatile CSS classes). Prefer user-facing attributes (text, labels, placeholders) or data attributes (`data-test-id`, `data-testid`).
+- **Flakiness prevention**: Never use fixed waits (`sleep(5000)`, `wait(5000)`, `waitForTimeout`). Use dynamic waiting: `locator.waitFor({ state: 'visible'|'attached' })`, `page.waitForResponse(...)`, or project helpers. Locators should auto-wait via Playwright actionability; add explicit dynamic waits only for API-driven state.
 
 Rules:
 - Prefer exact string match for validation/error labels, e.g. `page.getByText('No data found.', { exact: true })`.
@@ -54,6 +58,8 @@ Rules:
 - **Interaction patterns**: For elements affected by API calls/state, use `await this.<locator>.waitFor({ state: 'visible' })` or project helper before action. If custom fixtures expose utilities (e.g., `api`, `network` mocks), document how page interacts with them only if directly referenced.
 - **Reusability**: Extract common sequences (e.g., login flow) into page methods that compose locators/actions. Keep methods atomic where appropriate. If a sequence is shared across pages, suggest moving to helper/util instead.
 - Never put `expect()` inside the page class — return state, assert in step definitions.
+- **Assertions support**: Page methods should return observable state (boolean/strings/counts/locators) so tests can assert URLs, element visibility, and API responses where applicable. Provide `is<Name>Visible()`, `getUrl()`, `waitForApiResponse()` helpers as needed.
+- **Hooks usage**: Page objects stay hook-free; lifecycle hooks (`beforeEach`, `afterEach`, etc.) belong in spec/step setup and should reuse page methods to avoid duplication. Document recommended hook usage in the usage snippet.
 
 ### 4. Register in PageObjectManager
 - Add import, private field, and lazy getter. Preserve existing entries. Do not delete other pages.
@@ -71,7 +77,7 @@ Return in this order:
 3. **File 2: `src/pages/pageObjectManager.ts`** — full updated file, ready to save
 4. **Optional helpers/utils** — if new shared helpers are suggested (not required), include minimal code blocks for them (e.g., `src/utils/selectors.ts`, `src/pages/base-page.ts`) only when they don't exist and improve reusability. Do not create unless justified.
 5. **Usage snippet** — one step-definition line showing `pages.<camelPage>.` access, e.g. `await pages.searchLoanApplicationPage.verifyNoResultsFoundMessageDisplayed();`
-6. **Verification checklist** — `tsc --noEmit` passes, no XPath (or justified), new getter used, no `expect` in page class, uses existing helpers/fixtures where applicable, follows existing import/style conventions
+6. **Verification checklist** — `tsc --noEmit` passes, no XPath/fragile CSS (or justified), new getter used, no `expect` in page class, uses existing helpers/fixtures where applicable, follows existing import/style conventions, no fixed waits, dynamic waiting used, assertions supported by returned state, hooks documented in usage snippet
 
 ---
 
@@ -156,4 +162,5 @@ export class PageObjectManager {
 - Do NOT generate feature files, step definitions, or modify fixture implementations unless explicitly required and aligned with existing patterns.
 - Do NOT add `expect()` in page methods.
 - Do NOT use XPath or fragile CSS without justification.
+- Do NOT use fixed waits (`sleep`/`wait` with ms); use dynamic waiting.
 - Prefer extending/reusing existing code (BasePage, utils, helpers, fixtures) over creating new abstractions. Only introduce new shared utilities when they fill a clear gap and don't duplicate existing logic.

@@ -63,6 +63,7 @@ Rules (strict):
 - All assertions live in steps using `expect()`, never in the page class. Prefer boolean helpers: `expect(await pages.x.isYVisible()).toBe(true)` or `await expect(pages.x.yLocator).toBeVisible()` only if the page class exposes the Locator as public readonly.
 - `await` every page call and every `expect`.
 - Type every expression parameter: `(value: string)`, `(count: number)`.
+- **Flakiness prevention**: Never use fixed waits (`sleep(5000)`, `wait(5000)`, `waitForTimeout`). Use dynamic waiting: `page.waitForResponse(...)`, locator `waitFor({ state: 'visible'|'attached' })`, or page helper methods. Wait for API responses to complete before asserting. Prefer web-first assertions with auto-retry.
 - API/network `And` steps (e.g. `And the login API returns 401`) use either:
   - `page.waitForResponse(predicate)` around the triggering action, or
   - `page.request` for direct contract checks — assert `status()`, key JSON fields, and headers explicitly.
@@ -84,7 +85,7 @@ Return in this order:
 2. **Missing Page Object Coverage** — table or `None`. Columns: `Gherkin step | Needed page method signature | Reason`. If none missing, state `None — all steps map to existing methods.`
 3. **Coverage map** — table of every unique Gherkin step -> step expression -> page method(s) called. Proves no step was skipped.
 4. **File: `src/steps/<name>.steps.ts`** — full TypeScript code block, ready to save. Must import `expect`, `createBdd`, `test`, define each step once, and compile under `tsc --noEmit`.
-5. **Verification checklist** — `tsc --noEmit` passes, every Gherkin step has exactly one definition, no `page.getBy*` / `page.locator` / XPath in steps, no `expect` added to page class, all `await`s present, `Scenario Outline` placeholders use `{string}` / `{int}` / `{float}`, manager getter used consistently.
+5. **Verification checklist** — `tsc --noEmit` passes, every Gherkin step has exactly one definition, no `page.getBy*` / `page.locator` / XPath in steps, no `expect` added to page class, all `await`s present, `Scenario Outline` placeholders use `{string}` / `{int}` / `{float}`, manager getter used consistently, no fixed waits (`sleep`/`wait`/`waitForTimeout`), dynamic waiting used for elements/API responses.
 
 ---
 
@@ -177,3 +178,4 @@ Then('the {string} message is displayed', async ({ pages }, _message: string) =>
 - Do NOT put `expect()` in the page class and do NOT put locators in steps.
 - Do NOT invent Gherkin steps, roles, URLs, API contracts, or credentials. Flag unknowns under Assumptions / Missing Coverage.
 - Do NOT add hooks, fixtures, or `PageObjectManager` changes — that belongs to `playwright-page-object-generator`.
+- Do NOT use fixed waits (`sleep`/`wait`/`waitForTimeout`); use dynamic waiting.

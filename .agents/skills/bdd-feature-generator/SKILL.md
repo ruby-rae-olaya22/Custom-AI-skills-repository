@@ -1,6 +1,6 @@
 ---
 name: bdd-feature-generator
-description: Specialized AI agent for generating production-grade, Playwright-BDD compatible Gherkin test suites, assumptions, product clarifications, and security checks.
+description: Specialized AI agent for generating production-grade, Playwright-BDD compatible Gherkin test suites, assumptions, product clarifications, and security checks. Uses dynamic test data for input fields and sources environment-specific values from a .env file.
 tools: []
 ---
 
@@ -14,10 +14,23 @@ Generate a highly comprehensive, production-grade test suite for any targeted so
 When invoked, expect or ask for the following inputs:
 - **Feature Name**: `${input:feature_name}`
 - **Functional Description**: `${input:functional_description}`
+- **Base URL / Environment** (optional): target environment or base URL; if omitted, resolve from `.env` (`BASE_URL` / `API_BASE_URL`).
+- **Test Data Strategy** (optional): whether to use dynamic/generated data and `.env`-driven values (default: yes).
 
 ---
 
+# Configuration & Test Data (IMPORTANT)
+- Load environment-specific configuration from a `.env` file (`BASE_URL`, `API_BASE_URL`, credentials, tokens, seeded IDs, feature flags). Never hardcode secrets, URLs, or environment-specific values in scenarios or step definitions.
+- For input fields, use dynamic details as much as possible: prefer `Scenario Outline` + `Examples:` tables, runtime-generated values (Faker/UUID/timestamps/randomized data), and `.env`-driven data over static literals. Use fixed literals only when the value is semantically required (e.g., a boundary limit) and document why.
+- Keep secrets out of feature files: represent credentials/tokens as environment placeholders (e.g., `${BASE_URL}`, `<env:TEST_USER_PASSWORD>`) and resolve them in step definitions/fixtures from `.env`.
+- State the required `.env` keys under **Assumptions** so the runner knows what to configure.
+
 # Workflow
+
+### 0. Configuration & Data Management
+- Resolve environment values from `.env` (`BASE_URL`, `API_BASE_URL`, credentials, tokens, seeded data). Never hardcode secrets or environment-specific values; reference them via placeholders and list required keys under Assumptions.
+- For input fields, prefer dynamic details: use `Scenario Outline` + `Examples:`, generated data (Faker/UUID/timestamp), and `.env`-driven values instead of static literals. Use fixed literals only when semantically required and document why.
+- Keep credentials/tokens out of feature files; resolve them in step definitions/fixtures from `.env`.
 
 ### 1. Assumptions
 - List all technical, architectural, and design assumptions regarding the UI, API layer, and backend logic.
@@ -41,7 +54,8 @@ When invoked, expect or ask for the following inputs:
 ### 5. Test Strategy & Reliability
 - **Test isolation**: Design scenarios for per-worker isolation and use seeded test data (via fixtures/API setup) to avoid shared-state leaks across tests/workers.
 - **Flakiness prevention**: Prioritize readiness/synchronization over fixed waits (use Playwright auto-waiting, `waitForResponse`, `waitForSelector`/locator-based waits). Identify and eliminate race conditions. When diagnosing flakiness, suggest using traces, videos, and network/console logs to isolate root cause.
-- **Resilient assertions**: Prefer web-first assertions (`expect(locator).toBeVisible()`) and state-based checks over timing-based sleeps.
+- **Resilient assertions**: Prefer web-first assertions (`expect(locator).toBeVisible()`, URL checks, API response status/payload) over timing-based sleeps. Every scenario must include meaningful assertions.
+- **Hooks usage**: Recommend lifecycle hooks (`Before`/`After`/`BeforeAll`/`AfterAll`) in step definitions for setup/teardown to avoid duplication; do not duplicate setup in each scenario.
 - **Determinism**: Mock or control time/network where applicable; ensure tests can run in parallel safely.
 
 ---
@@ -55,12 +69,18 @@ Your suite MUST systematically cover:
 - **Security Scenarios**: Input sanitization (SQLi, XSS), CSRF, brute-force limits, rate limiting, session termination/lockout.
 - **API/Network Validation**: Matching HTTP status codes ($200$, $400$, $401$, $403$, $422$, $429$, $500$), expected JSON payload signatures, headers, and response properties.
 - **Non-Functional Validation**: Include test considerations for functional validation, visual validation (colors/fonts/layouts/images), responsive behavior (mobile/tablet/desktop), cross-browser compatibility (Chrome/Safari/Firefox/Edge), accessibility compliance (keyboard navigation, screen reader support, color contrast), usability, efficiency/learnability. Where relevant, call out qualitative (user observation, think-aloud) and quantitative (task completion metrics) approaches (e.g., A/B testing, tree testing, heuristic evaluations, moderated/unmoderated user testing) when appropriate for the feature.
+- **Configuration & Data**: No hardcoded base URLs, credentials, tokens, or environment-specific IDs; source them from `.env`. Input values should be dynamic (Scenario Outlines/Examples, generated data) unless a fixed value is semantically required; document any fixed literals.
 
 ---
 
+# File Organization (IMPORTANT)
+- Produce **one feature file per feature** (e.g., `features/<feature_name>.feature`). Do NOT create separate folders or files named `UI`, `Security`, or `API`.
+- UI, security, and API/network scenarios must all live as scenarios/tags within the **same** feature file. Use tags (e.g., `@ui`, `@security`, `@api`) for filtering, not folder separation.
+- Keep environment configuration in a root `.env` (and `.env.example` documenting required keys). Feature files must not contain secrets; reference env keys and dynamic data placeholders only.
+
 # Output Format for Scenarios
 
-Every Gherkin scenario or `Scenario Outline` must follow this standard format:
+Every Gherkin scenario or `Scenario Outline` must follow this standard format. Use placeholders for dynamic input data (e.g., `<username>`, `<email>`) and environment-driven values (e.g., `${BASE_URL}`) instead of static literals whenever possible:
 
 ```gherkin
 @tags
